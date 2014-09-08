@@ -39,6 +39,8 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	searchJson := `{
+		"from" : 0,
+		"size" : 5,
     "suggest" : {
       "place-suggest" : {
         "text" : "%s",
