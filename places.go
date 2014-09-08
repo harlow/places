@@ -14,19 +14,19 @@ import (
 var es = elastigo.NewConn()
 
 type Place struct {
-	Description          string             `json:"description"`
-	PlaceId              int             		`json:"placeId"`
-	PlaceSource          string             `json:"placeSource"`
-	TimeZoneId           string             `json:"timeZoneId"`
-	TimeZoneName         string             `json:"timeZoneName"`
-	TimeZoneOffset       int             		`json:"timeZoneOffset"`
-	Latitude             float64 						`json:"latitude"`
-	Longitude            float64 						`json:"longitude"`
+	Description    string  `json:"description"`
+	PlaceId        int     `json:"placeId"`
+	PlaceSource    string  `json:"placeSource"`
+	TimeZoneId     string  `json:"timeZoneId"`
+	TimeZoneName   string  `json:"timeZoneName"`
+	TimeZoneOffset int     `json:"timeZoneOffset"`
+	Latitude       float64 `json:"latitude"`
+	Longitude      float64 `json:"longitude"`
 }
 
 func (p *Place) SetTimeZoneOffset() {
-	location , _ := time.LoadLocation(p.TimeZoneId)
-	_ , offset := time.Now().In(location).Zone()
+	location, _ := time.LoadLocation(p.TimeZoneId)
+	_, offset := time.Now().In(location).Zone()
 	p.TimeZoneOffset = offset
 }
 
@@ -89,7 +89,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	es.Domain = os.Getenv("ELASTICSEARCH_URL")
 	http.HandleFunc("/", requestHandler)
-	err := http.ListenAndServe(":" + os.Getenv("PORT"), nil)
+	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 
 	if err != nil {
 		panic(err)
