@@ -3,20 +3,38 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/shutej/elastigo/lib"
 	"net/http"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/shutej/elastigo/lib"
 )
 
 var es = elastigo.NewConn()
 
-func requestHandler(res http.ResponseWriter, req *http.Request) {
-	query := strings.ToLower(strings.TrimLeft(req.RequestURI, "/"))
+type Place struct {
+	Description          string             `json:"description"`
+	PlaceId              int             		`json:"placeId"`
+	PlaceSource          string             `json:"placeSource"`
+	TimeZoneId           string             `json:"timeZoneId"`
+	TimeZoneName         string             `json:"timeZoneName"`
+	TimeZoneOffset       int             		`json:"timeZoneOffset"`
+	Latitude             float64 						`json:"latitude"`
+	Longitude            float64 						`json:"longitude"`
+}
+
+func (p *Place) SetTimeZoneOffset() {
+	location , _ := time.LoadLocation(p.TimeZoneId)
+	_ , offset := time.Now().In(location).Zone()
+	p.TimeZoneOffset = offset
+}
+
+func requestHandler(w http.ResponseWriter, r *http.Request) {
+	query := strings.ToLower(strings.TrimLeft(r.RequestURI, "/"))
 
 	if query == "" {
-		str := `{"error": "Please specify query path"}`
-		res.Write([]byte(str))
+		http.Error(w, "Please specify location name", http.StatusInternalServerError)
 		return
 	}
 
@@ -34,44 +52,43 @@ func requestHandler(res http.ResponseWriter, req *http.Request) {
     }
   }`
 
-	searchJson = fmt.Sprintf(searchJson, query)
-
-	out, err := es.Search("places", "place", nil, searchJson)
+	qry := fmt.Sprintf(searchJson, query)
+	out, err := es.Search("places", "place", nil, qry)
 
 	if err != nil {
-		str := fmt.Sprintf(`{"error": "%s"}`, err.Error())
-		res.Write([]byte(str))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if len(out.Suggestions["place-suggest"][0].Options) == 0 {
-		res.Write([]byte("[]"))
+		w.Write([]byte("[]"))
 		return
 	}
 
-	var places []json.RawMessage
+	var places []Place
 
 	for _, v := range out.Suggestions["place-suggest"][0].Options {
-		places = append(places, v.Payload)
+		var p Place
+		json.Unmarshal(v.Payload, &p)
+		p.SetTimeZoneOffset()
+		places = append(places, p)
 	}
 
 	bytes, err := json.Marshal(places)
 
 	if err != nil {
-		str := fmt.Sprintf(`{"error": "%s"}`, err)
-		res.Write([]byte(str))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	res.Write(bytes)
+	w.Write(bytes)
 }
 
 func main() {
 	es.Domain = os.Getenv("ELASTICSEARCH_URL")
-
 	http.HandleFunc("/", requestHandler)
-	fmt.Println("listening...")
-	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	err := http.ListenAndServe(":" + os.Getenv("PORT"), nil)
+
 	if err != nil {
 		panic(err)
 	}
