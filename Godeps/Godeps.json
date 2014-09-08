@@ -1,0 +1,18 @@
+{
+	"ImportPath": "places",
+	"GoVersion": "go1.3.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/araddon/gou",
+			"Rev": "5270e27dc51dad48e1a1d1f5a7806e2fa8d2eb88"
+		},
+		{
+			"ImportPath": "github.com/bitly/go-hostpool",
+			"Rev": "2e89d10a8bbfeada4b32882ffb4a2cb8b31d9bc0"
+		},
+		{
+			"ImportPath": "github.com/shutej/elastigo/lib",
+			"Rev": "4683f64baf9cf17865ccafa3823936a7976dbd85"
+		}
+	]
+}
