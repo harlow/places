@@ -2,7 +2,7 @@
 
 Autocomplete API endpoint for geographic places written in Golang with Elasticsearch backend.
 
-## Installation
+## Elasticsearch Index
 
 Create a new index:
 
@@ -16,10 +16,10 @@ Add mappings for index:
 curl -X PUT localhost:9200/places/place/_mapping -d '{
   "place" : {
     "properties" : {
-      "description" : { 
-        "type" : "string" 
+      "name" : {
+        "type" : "string"
       },
-      "suggest" : { 
+      "suggest" : {
         "type" : "completion",
         "index_analyzer" : "simple",
         "search_analyzer" : "simple",
@@ -36,18 +36,17 @@ Data should be added in the following format.
 
 ```
 curl -X PUT 'localhost:9200/places/place/1?refresh=true' -d '{
-  "description" : "Hollywood, Los Angeles, CA, United States",
+  "name" : "Hollywood, Los Angeles, CA, United States",
   "suggest" : {
     "input": [ "Hollywood", "Los Angeles", "CA", "United States" ],
-    "output": "Hollywood, Los Angeles, CA, United States",
-    "payload" : { 
+    "payload" : {
       "description" : "Hollywood, Los Angeles, CA, United States",
-      "placeId" : "1",
-      "placeSource" : "Neighborhood",
+      "placeId" : "ChIJD79iBh9u5kcRyJsMaMOCCwQ",
+      "placeType" : "Neighborhood",
       "timeZoneId" : "America/Los_Angeles",
       "timeZoneName" : "Pacific Daylight Time",
       "latitude" : 34.0500,
-      "longitude" : 118.2500,
+      "longitude" : 118.2500
     },
     "weight" : 50
   }

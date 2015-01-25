@@ -15,8 +15,8 @@ var es = elastigo.NewConn()
 
 type Place struct {
 	Description    string  `json:"description"`
-	PlaceId        int     `json:"placeId"`
-	PlaceSource    string  `json:"placeSource"`
+	PlaceId        string  `json:"placeId"`
+	PlaceType      string  `json:"placeType"`
 	TimeZoneId     string  `json:"timeZoneId"`
 	TimeZoneName   string  `json:"timeZoneName"`
 	TimeZoneOffset int     `json:"timeZoneOffset"`
@@ -24,9 +24,16 @@ type Place struct {
 	Longitude      float64 `json:"longitude"`
 }
 
-func (p *Place) SetTimeZoneOffset() {
-	location, _ := time.LoadLocation(p.TimeZoneId)
+func (p *Place) CalculateTimeZoneOffset() {
+	location, err1 := time.LoadLocation(p.TimeZoneId)
+
+	if err1 != nil {
+		p.TimeZoneOffset = 0
+		return
+	}
+
 	_, offset := time.Now().In(location).Zone()
+
 	p.TimeZoneOffset = offset
 }
 
@@ -72,7 +79,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	for _, v := range out.Suggestions["place-suggest"][0].Options {
 		var p Place
 		json.Unmarshal(v.Payload, &p)
-		p.SetTimeZoneOffset()
+		p.CalculateTimeZoneOffset()
 		places = append(places, p)
 	}
 
