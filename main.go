@@ -54,7 +54,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
         "completion" : {
           "field" : "suggest",
           "fuzzy" : {
-            "fuzziness" : 2
+            "fuzziness" : "AUTO"
           }
         }
       }
