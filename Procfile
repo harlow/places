@@ -1,1 +1,1 @@
-web: places
+web: main

@@ -24,7 +24,7 @@ type Place struct {
 	Longitude      float64 `json:"longitude"`
 }
 
-func (p *Place) CalculateTimeZoneOffset() {
+func (p *Place) SetTimeZoneOffset() {
 	location, err1 := time.LoadLocation(p.TimeZoneId)
 
 	if err1 != nil {
@@ -41,7 +41,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	query := strings.ToLower(strings.TrimLeft(r.RequestURI, "/"))
 
 	if query == "" {
-		http.Error(w, "Please specify location name", http.StatusInternalServerError)
+		http.Error(w, "Please specify place query", http.StatusInternalServerError)
 		return
 	}
 
@@ -79,7 +79,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	for _, v := range out.Suggestions["place-suggest"][0].Options {
 		var p Place
 		json.Unmarshal(v.Payload, &p)
-		p.CalculateTimeZoneOffset()
+		p.SetTimeZoneOffset()
 		places = append(places, p)
 	}
 

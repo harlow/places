@@ -16,9 +16,6 @@ Add mappings for index:
 curl -X PUT localhost:9200/places/place/_mapping -d '{
   "place" : {
     "properties" : {
-      "name" : {
-        "type" : "string"
-      },
       "suggest" : {
         "type" : "completion",
         "index_analyzer" : "simple",
@@ -36,7 +33,6 @@ Data should be added in the following format.
 
 ```
 curl -X PUT 'localhost:9200/places/place/1?refresh=true' -d '{
-  "name" : "Hollywood, Los Angeles, CA, United States",
   "suggest" : {
     "input": [ "Hollywood", "Los Angeles", "CA", "United States" ],
     "payload" : {
