@@ -13,19 +13,21 @@ import (
 
 var es = elastigo.NewConn()
 
+// Place a struct for formatting JSON
 type Place struct {
 	Description    string  `json:"description"`
-	PlaceId        string  `json:"placeId"`
+	PlaceID        string  `json:"placeId"`
 	PlaceType      string  `json:"placeType"`
-	TimeZoneId     string  `json:"timeZoneId"`
+	TimeZoneID     string  `json:"timeZoneId"`
 	TimeZoneName   string  `json:"timeZoneName"`
 	TimeZoneOffset int     `json:"timeZoneOffset"`
 	Latitude       float64 `json:"latitude"`
 	Longitude      float64 `json:"longitude"`
 }
 
+// SetTimeZoneOffset loads location and sets timezone offset
 func (p *Place) SetTimeZoneOffset() {
-	location, err1 := time.LoadLocation(p.TimeZoneId)
+	location, err1 := time.LoadLocation(p.TimeZoneID)
 
 	if err1 != nil {
 		p.TimeZoneOffset = 0
@@ -45,7 +47,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	searchJson := `{
+	searchJSON := `{
 		"from" : 0,
 		"size" : 5,
     "suggest" : {
@@ -61,7 +63,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
     }
   }`
 
-	qry := fmt.Sprintf(searchJson, query)
+	qry := fmt.Sprintf(searchJSON, query)
 	out, err := es.Search("places", "place", nil, qry)
 
 	if err != nil {
